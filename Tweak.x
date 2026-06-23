@@ -3762,6 +3762,27 @@ static BOOL BHColorTwitterIconEnabled(void) {
 
 %end
 
+%hook TFNButton
+
+- (void)didMoveToWindow {
+    %orig;
+    UIButton *button = (UIButton *)self;
+    if (!button.window || ![BHTManager hideGrokAnalyze]) return;
+    @try {
+        if (button.accessibilityLabel.length != 0 || !button.showsMenuAsPrimaryAction) return;
+        for (UIView *ancestor = button.superview; ancestor; ancestor = ancestor.superview) {
+            if ([ancestor isKindOfClass:NSClassFromString(@"TFNNavigationBar")]) {
+                button.hidden = YES;
+                break;
+            }
+        }
+    } @catch (NSException *exception) {
+        NSLog(@"[BHTwitter] Exception in TFNButton didMoveToWindow: %@", exception);
+    }
+}
+
+%end
+
 // MARK: - Hide Follow Button (T1ConversationFocalStatusView)
 
 // Minimal interface for T1ConversationFocalStatusView
